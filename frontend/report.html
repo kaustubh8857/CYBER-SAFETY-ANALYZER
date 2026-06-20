@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report Fraud - Cyber Safety Analyzer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="card">
+      <a href="index.html" class="back-link">← Back to Home</a>
+      <h2>📝 Report Cyber Fraud</h2>
+      <p class="subtitle">Fill in the details below to report a cyber fraud incident.</p>
+
+      <form id="reportForm">
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input id="name" type="text" placeholder="Enter your full name" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input id="email" type="email" placeholder="Enter your email address" required>
+        </div>
+        <div class="form-group">
+          <label for="type">Fraud Type</label>
+          <select id="type" required>
+            <option value="">-- Select Fraud Type --</option>
+            <option value="UPI Fraud">UPI Fraud</option>
+            <option value="Phishing">Phishing</option>
+            <option value="Online Shopping Fraud">Online Shopping Fraud</option>
+            <option value="Identity Theft">Identity Theft</option>
+            <option value="Social Media Fraud">Social Media Fraud</option>
+            <option value="Bank Fraud">Bank Fraud</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="desc">Description</label>
+          <textarea id="desc" placeholder="Describe the fraud incident in detail..." rows="5" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary full-width" id="submitBtn">
+          Submit Report
+        </button>
+      </form>
+      <div id="message"></div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

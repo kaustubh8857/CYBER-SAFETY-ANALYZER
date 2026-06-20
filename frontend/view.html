@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Reports - Cyber Safety Analyzer</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="card wide-card">
+      <a href="index.html" class="back-link">← Back to Home</a>
+      <h2>📊 Reported Fraud Cases</h2>
+      <p class="subtitle">All reported cyber fraud incidents are listed below.</p>
+
+      <!-- Stats Bar -->
+      <div id="statsBar" class="stats-bar"></div>
+
+      <!-- Chart -->
+      <div class="chart-container">
+        <canvas id="fraudChart"></canvas>
+      </div>
+
+      <!-- Search & Filter -->
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="🔍 Search by name, email or description...">
+        <select id="filterType">
+          <option value="">All Fraud Types</option>
+          <option value="UPI Fraud">UPI Fraud</option>
+          <option value="Phishing">Phishing</option>
+          <option value="Online Shopping Fraud">Online Shopping Fraud</option>
+          <option value="Identity Theft">Identity Theft</option>
+          <option value="Social Media Fraud">Social Media Fraud</option>
+          <option value="Bank Fraud">Bank Fraud</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div id="loading" class="loading-text">Loading reports...</div>
+      <div id="reportsList"></div>
+      <div id="noResults" class="no-data" style="display:none;">No reports match your search.</div>
+    </div>
+  </div>
+
+  <script>
+    let allReports = [];
+
+    fetch("/api/reports")
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("loading").style.display = "none";
+        allReports = data;
+        updateStats(data);
+        renderChart(data);
+        renderReports(data);
+      })
+      .catch(() => {
+        document.getElementById("loading").innerHTML =
+          '<p class="error-text">Failed to load reports. Please make sure the server is running.</p>';
+      });
+
+    function updateStats(data) {
+      const statsBar = document.getElementById("statsBar");
+      const total = data.length;
+      const types = {};
+      data.forEach(r => {
+        types[r.type] = (types[r.type] || 0) + 1;
+      });
+      const topType = Object.entries(types).sort((a, b) => b[1] - a[1])[0];
+      statsBar.innerHTML = `
+        <div class="stat-item">
+          <span class="stat-number">${total}</span>
+          <span class="stat-label">Total Reports</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">${Object.keys(types).length}</span>
+          <span class="stat-label">Fraud Types</span>
+        </div>
+        ${topType ? `
+        <div class="stat-item">
+          <span class="stat-number">${topType[1]}</span>
+          <span class="stat-label">Most: ${topType[0]}</span>
+        </div>` : ""}
+      `;
+    }
+
+    function renderChart(data) {
+      const types = {};
+      data.forEach(r => {
+        types[r.type] = (types[r.type] || 0) + 1;
+      });
+
+      const labels = Object.keys(types);
+      const values = Object.values(types);
+      const colors = [
+        "#3b82f6", "#f87171", "#4ade80", "#fbbf24",
+        "#a78bfa", "#fb923c", "#34d399"
+      ];
+
+      const ctx = document.getElementById("fraudChart").getContext("2d");
+      new Chart(ctx, {
+        type: "doughnut",
+        data: {
+          labels: labels,
+          datasets: [{
+            data: values,
+            backgroundColor: colors.slice(0, labels.length),
+            borderColor: "#111827",
+            borderWidth: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: {
+                color: "#94a3b8",
+                padding: 20,
+                font: { size: 13 }
+              }
+            },
+            title: {
+              display: true,
+              text: "Fraud Type Distribution",
+              color: "#e2e8f0",
+              font: { size: 16, weight: "bold" }
+            }
+          }
+        }
+      });
+    }
+
+    function renderReports(data) {
+      const list = document.getElementById("reportsList");
+      const noResults = document.getElementById("noResults");
+
+      if (data.length === 0) {
+        list.innerHTML = "";
+        noResults.style.display = "block";
+        return;
+      }
+
+      noResults.style.display = "none";
+      list.innerHTML = data.map(r => `
+        <div class="report-card">
+          <div class="report-header">
+            <span class="badge">${r.type}</span>
+            <small>${new Date(r.created_at).toLocaleDateString("en-IN")}</small>
+          </div>
+          <p><strong>Name:</strong> ${r.name}</p>
+          <p><strong>Email:</strong> ${r.email}</p>
+          <p><strong>Description:</strong> ${r.description}</p>
+        </div>
+      `).join("");
+    }
+
+    function filterReports() {
+      const search = document.getElementById("searchInput").value.toLowerCase();
+      const type = document.getElementById("filterType").value;
+
+      const filtered = allReports.filter(r => {
+        const matchesSearch =
+          r.name.toLowerCase().includes(search) ||
+          r.email.toLowerCase().includes(search) ||
+          r.description.toLowerCase().includes(search);
+        const matchesType = type === "" || r.type === type;
+        return matchesSearch && matchesType;
+      });
+
+      renderReports(filtered);
+    }
+
+    document.getElementById("searchInput").addEventListener("input", filterReports);
+    document.getElementById("filterType").addEventListener("change", filterReports);
+  </script>
+</body>
+</html>
