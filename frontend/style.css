@@ -113,19 +113,58 @@ body {
 .hero-content h1 {
   font-size: 2.8rem;
   font-weight: 800;
-  color: #ffffff;
   margin-bottom: 16px;
   line-height: 1.2;
-  background: linear-gradient(135deg, #ffffff 0%, #93c5fd 50%, #3b82f6 100%);
+  position: relative;
+
+  background: linear-gradient(
+    90deg,
+    #ffffff,
+    #00d4ff,
+    #ff00ff,
+    #00ff88,
+    #ffff00,
+    #ff6b6b,
+    #ffffff
+  );
+
+  background-size: 300% auto;
+
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: text-shimmer 4s ease-in-out infinite;
+
+  animation:
+    rainbowMove 6s linear infinite,
+    glowPulse 2s ease-in-out infinite;
+
+  text-shadow:
+    0 0 10px rgba(0, 212, 255, 0.8),
+    0 0 20px rgba(255, 0, 255, 0.7),
+    0 0 30px rgba(0, 255, 136, 0.6),
+    0 0 40px rgba(255, 255, 0, 0.5);
 }
 
-@keyframes text-shimmer {
-  0%, 100% { filter: brightness(1); }
-  50% { filter: brightness(1.2); }
+@keyframes rainbowMove {
+  0% {
+    background-position: 0% center;
+  }
+
+  100% {
+    background-position: 300% center;
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.5));
+  }
+
+  50% {
+    filter:
+      drop-shadow(0 0 15px rgba(255, 0, 255, 0.8))
+      drop-shadow(0 0 25px rgba(0, 255, 136, 0.8));
+  }
 }
 
 .hero-content p {
